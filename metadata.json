@@ -1,0 +1,6 @@
+{
+  "name": "MaternalCare Ghana",
+  "description": "Pre-eclampsia screening, risk assessment, and clinical referral assistant for midwives in Ghana.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
