@@ -11,6 +11,7 @@ import {
   PatientRegistration,
   ClinicalEvaluation,
   AssessmentRecord,
+  Clinician,
 } from "./types";
 import { INITIAL_ASSESSMENT_RECORDS } from "./data";
 import WelcomeDashboard from "./components/WelcomeDashboard";
@@ -19,7 +20,36 @@ import TriageResult from "./components/TriageResult";
 import ReferralNoteView from "./components/ReferralNoteView";
 import HistoryList from "./components/HistoryList";
 import EducationalHub from "./components/EducationalHub";
-import { KeyRound, ShieldAlert, Heart, Clipboard, HelpCircle, Activity, Stethoscope, Landmark, UserRoundCheck, ClipboardList, CheckCircle, BookOpen } from "lucide-react";
+import ClinicianAuthModal from "./components/ClinicianAuthModal";
+import TerminalLockScreen from "./components/TerminalLockScreen";
+import { KeyRound, ShieldAlert, Heart, Clipboard, HelpCircle, Activity, Stethoscope, Landmark, UserRoundCheck, ClipboardList, CheckCircle, BookOpen, Lock, LogOut } from "lucide-react";
+
+const DEFAULT_CLINICIANS: Clinician[] = [
+  {
+    id: "nurse_akosua",
+    name: "Nurse Akosua (R.M.)",
+    role: "Registered Midwife",
+    ghsNumber: "GMR-98442-2026",
+    pinCode: "1234",
+    avatarUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuCBOMNxE0yeaUP_4gdv5Dg_A2ZIrry9OLsny6QrTT_SelW7ZtOdPqDPvgT_047rvkRbwlpe_QhO3vhxpmqqQ8bQvhxV-5Jyj3-p6UJ6I7cQQjyegXvOMvYTtfPmrNj0LZYaUigibUL5J7PCjvPabgvg2ZmVgdaNQRQxPTNipBJGlI32dMSowcwV0IwMjvW4zC0TppiVb_vie_HbRmHMs4BFwBN-VRiCTKEql9K2qnigRjnQHQAUk0aJof7uG4cSjW33-PNjWu7ctA"
+  },
+  {
+    id: "dr_oppong",
+    name: "Dr. Edward Oppong (M.O.)",
+    role: "Medical Officer",
+    ghsNumber: "GDC-77412-2026",
+    pinCode: "4321",
+    avatarUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAWdRXWG-EupW7HCgQTp1tdJXgZlza3cZzKvHO4GtfJdEYxRadCD5eS3WUeyM_MhBhQe2H_CVcFpB0idbdIFwqMw5MJbxU54fn2264U-Wfr7sS12PKr8jagAQ4Q1Xpp1H3bdN5ORcp0f05Czn6bpS4Rs4woelh1tj4-bJB_mAgDipkHZJ8HBbxNnJ-na9L_pDSwCXvIVLivub-2YSkl5NlS01tKmvEHZkGRCpSeRDS4wHxNI8nQvKWw6Ed_MsomnAE9Xe9p6NJyy-A"
+  },
+  {
+    id: "midwife_grace",
+    name: "Clinician Grace Owusu (P.H.N.)",
+    role: "Public Health Nurse",
+    ghsNumber: "GMR-32049-2026",
+    pinCode: "0000",
+    avatarUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuCHAyC7BFFrsjXz-F_hartpaEG6RxXanmvMdx5QMkdx69LvXIL5n_Sq6Vocs8-9Dy1BE9_RbMMNAbYmBzj0hE9sVP_BP9WeMFLSjFQJeYB5PlSq87zKvhDMPlOstdxx_ipo4Bgfa1lcpHbodJqZ0dtG5UgUddF6b89g0LT2aeWpcaueKkbVa55EQyM2EEdjnt4WKnMZIz2Fc6IINliHD1IJd1iBONT0vvCnumi24RiXwGK2tE2VX633R3X_MtqOamUnFcEx7wwjiqY"
+  }
+];
 
 export default function App() {
   // Initialize records from localstorage if present, otherwise load prepopulated ones
@@ -38,6 +68,55 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("mat_care_ghana_records", JSON.stringify(records));
   }, [records]);
+
+  // Clinicians database tracking
+  const [clinicians, setClinicians] = useState<Clinician[]>(() => {
+    const saved = localStorage.getItem("mat_care_clinicians");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (err) {
+        console.error("Failed to parse clinicians list:", err);
+      }
+    }
+    return DEFAULT_CLINICIANS;
+  });
+
+  const [activeClinician, setActiveClinician] = useState<Clinician>(() => {
+    const saved = localStorage.getItem("mat_care_active_clinician");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (err) {
+        console.error("Failed to parse active clinician:", err);
+      }
+    }
+    return DEFAULT_CLINICIANS[0]; // Nurse Akosua (R.M.) is primary standard default clinician on-site
+  });
+
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isTerminalLocked, setIsTerminalLocked] = useState<boolean>(() => {
+    return localStorage.getItem("mat_care_terminal_locked") === "true";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("mat_care_clinicians", JSON.stringify(clinicians));
+  }, [clinicians]);
+
+  useEffect(() => {
+    localStorage.setItem("mat_care_active_clinician", JSON.stringify(activeClinician));
+  }, [activeClinician]);
+
+  const handleLogout = () => {
+    setIsTerminalLocked(true);
+    localStorage.setItem("mat_care_terminal_locked", "true");
+  };
+
+  const handleUnlock = (clin: Clinician) => {
+    setActiveClinician(clin);
+    setIsTerminalLocked(false);
+    localStorage.setItem("mat_care_terminal_locked", "false");
+  };
 
   // Overall screen mode
   const [activeWorkflow, setActiveWorkflow] = useState<
@@ -189,6 +268,7 @@ export default function App() {
             reasons: outcomes.reasons,
             referralId: outcomes.riskLevel === RiskLevel.HIGH ? `REF-2026-${Math.floor(1000 + Math.random() * 9000)}` : undefined,
             referralStatus: outcomes.riskLevel === RiskLevel.HIGH ? "REFERRED" : "PENDING",
+            clinician: activeClinician,
           };
 
           setEvaluationRecord(newRecord);
@@ -219,34 +299,62 @@ export default function App() {
     setActiveTab("history");
   };
 
+  // Real record modifications
+  const handleDeleteRecord = (id: string) => {
+    setRecords((prev) => prev.filter((r) => r.id !== id));
+  };
+
+  const handleClearAllRecords = () => {
+    setRecords([]);
+  };
+
+  const handleResetToDefaultRecords = () => {
+    setRecords(INITIAL_ASSESSMENT_RECORDS);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-between font-sans selection:bg-teal-500/10 selection:text-teal-900 pb-20 sm:pb-24">
       {/* Clinician Brand Header */}
-      <header className="bg-white border-b sticky top-0 z-40 px-6 py-4.5 no-print">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-teal-605 text-white rounded-xl flex items-center justify-center font-black select-none shadow shadow-teal-700/15">
-              <Stethoscope className="w-5.5 h-5.5 text-teal-600" />
+      <header className="bg-white border-b sticky top-0 z-40 px-4 py-3 sm:px-6 no-print">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-teal-605 text-white rounded-xl flex items-center justify-center font-black select-none shadow shadow-teal-700/15 shrink-0">
+              <Stethoscope className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 text-teal-600" />
             </div>
             <div className="text-left">
-              <h1 className="text-sm font-black text-slate-900 tracking-tight leading-none uppercase">
+              <h1 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight leading-none uppercase">
                 MaternalCare Ghana
               </h1>
-              <p className="text-[10px] text-slate-400 font-mono tracking-wide mt-0.5">
-                PreeclampsiaFlag Diagnostic Hub • District Clinic 4
+              <p className="text-[8px] sm:text-[10px] text-slate-400 font-mono tracking-wide mt-0.5">
+                District Clinic 4 Hub
               </p>
             </div>
           </div>
 
-          <div className="flex gap-4 items-center">
+          <div className="flex gap-2 sm:gap-4 items-center shrink-0">
             {/* Online Sync confirmation marker */}
-            <span className="hidden md:flex items-center gap-1.5 text-xs text-slate-500 font-mono font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span className="hidden md:flex items-center gap-1.5 text-xs text-slate-550 font-mono font-medium">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               STABILIZED CLINIC ENGINE
             </span>
-            <div className="py-1 px-3 bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold rounded-lg font-mono">
-              Nurse Akosua
-            </div>
+            <button
+              onClick={() => setIsAuthModalOpen(true)}
+              title="Click to Switch Clinician Profile / Shift"
+              className="py-1.5 px-2.5 sm:px-3 bg-teal-50 hover:bg-teal-100/80 active:scale-95 transition-all text-teal-905 border border-teal-300 text-xs font-bold rounded-xl font-mono flex items-center gap-1.5 cursor-pointer max-w-[120px] sm:max-w-none"
+            >
+              <UserRoundCheck className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+              <span className="max-w-[65px] sm:max-w-none truncate block">
+                {activeClinician.name}
+              </span>
+            </button>
+            <button
+              onClick={handleLogout}
+              title="Secure Lock Terminal / Sign Out"
+              className="py-1.5 px-2.5 sm:px-3 bg-slate-900 hover:bg-slate-800 active:scale-95 transition-all text-white border border-slate-900 text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5 text-red-400 stroke-[2.5]" />
+              <span className="hidden sm:inline">Lock Shift</span>
+            </button>
           </div>
         </div>
       </header>
@@ -266,6 +374,8 @@ export default function App() {
                 onGoToEdu={() => setActiveTab("education")}
                 records={records}
                 onSelectRecord={handleSelectRecord}
+                activeClinician={activeClinician}
+                onOpenAuth={() => setIsAuthModalOpen(true)}
               />
             )}
 
@@ -279,7 +389,13 @@ export default function App() {
                     Search and filter midwife evaluations tracked at this station.
                   </p>
                 </div>
-                <HistoryList records={records} onSelectRecord={handleSelectRecord} />
+                <HistoryList
+                  records={records}
+                  onSelectRecord={handleSelectRecord}
+                  onDeleteRecord={handleDeleteRecord}
+                  onClearAll={handleClearAllRecords}
+                  onResetToDefaults={handleResetToDefaultRecords}
+                />
               </div>
             )}
 
@@ -584,6 +700,28 @@ export default function App() {
       <footer className="bg-white border-t py-4 text-center text-slate-400 text-xs mt-12 print:hidden no-print">
         <p>© 2026 Ghana Health Service Obstetric Division. All safety calculations validated. Pre-eclampsia clinical support widget.</p>
       </footer>
+
+      {/* Secure Shift Authentication Overlay */}
+      <ClinicianAuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        clinicians={clinicians}
+        activeClinician={activeClinician}
+        onSelectClinician={(clin) => {
+          setActiveClinician(clin);
+        }}
+        onRegisterClinician={(newClin) => {
+          setClinicians((prev) => [newClin, ...prev]);
+          setActiveClinician(newClin);
+        }}
+      />
+
+      {isTerminalLocked && (
+        <TerminalLockScreen
+          clinicians={clinicians}
+          onUnlock={handleUnlock}
+        />
+      )}
     </div>
   );
 }

@@ -5,7 +5,7 @@
 
 import React, { useState } from "react";
 import { PatientRegistration, ClinicalEvaluation, ProteinuriaLevel, SwellingLevel, RiskLevel, AssessmentRecord } from "../types";
-import { Mic, MicOff, AlertCircle, ArrowRight, ArrowLeft, Heart, Sparkles, Activity, Plus, Minus, UserCheck, ShieldAlert, Check } from "lucide-react";
+import { AlertCircle, ArrowRight, ArrowLeft, Heart, Sparkles, Activity, Plus, Minus, UserCheck, ShieldAlert, Check } from "lucide-react";
 
 interface ActiveAssessmentProps {
   onComplete: (registration: PatientRegistration, clinical: ClinicalEvaluation) => void;
@@ -15,9 +15,6 @@ interface ActiveAssessmentProps {
 export default function ActiveAssessment({ onComplete, onCancel }: ActiveAssessmentProps) {
   const [assessmentStage, setAssessmentStage] = useState<"reg" | "clin">("reg");
   const [activeStep, setActiveStep] = useState(1);
-
-  // Micro-simulation for dictation/microphone state
-  const [isDictating, setIsDictating] = useState(false);
 
   // --- State 1: Patient Registration Data ---
   const [fullName, setFullName] = useState("");
@@ -47,29 +44,6 @@ export default function ActiveAssessment({ onComplete, onCancel }: ActiveAssessm
 
   const TOTAL_REG_STEPS = 5;
   const TOTAL_CLIN_STEPS = 5;
-
-  // Simulate Speech to Text for Patient Name input field
-  const toggleDictation = () => {
-    if (!isDictating) {
-      setIsDictating(true);
-      const names = ["Esi Mensah", "Abena Boateng", "Ama Sarfo", "Fatima Osei", "Grace Owusu"];
-      const randomName = names[Math.floor(Math.random() * names.length)];
-      let index = 0;
-      setFullName("");
-
-      const interval = setInterval(() => {
-        if (index < randomName.length) {
-          setFullName((prev) => prev + randomName[index]);
-          index++;
-        } else {
-          clearInterval(interval);
-          setIsDictating(false);
-        }
-      }, 150);
-    } else {
-      setIsDictating(false);
-    }
-  };
 
   const getTrimesterLabel = (weeks: number) => {
     if (weeks <= 12) return "Trimester 1 (Weeks 4-12)";
@@ -252,30 +226,13 @@ export default function ActiveAssessment({ onComplete, onCancel }: ActiveAssessm
                   <label className="block text-xs font-mono font-bold text-slate-450 uppercase">
                     Patient's Full Name
                   </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Enter full name of pregnant mother"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      className="w-full text-base font-semibold px-4 py-3 border-2 border-slate-200 outline-none rounded-2xl focus:border-teal-500 transition-all font-sans"
-                    />
-                    <button
-                      onClick={toggleDictation}
-                      className={`absolute right-3.5 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all flex items-center justify-center cursor-pointer ${
-                        isDictating
-                          ? "bg-red-500 text-white animate-pulse"
-                          : "bg-slate-100 hover:bg-slate-200 text-slate-500"
-                      }`}
-                    >
-                      {isDictating ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-                    </button>
-                  </div>
-                  {isDictating && (
-                    <div className="text-[10px] text-red-500 font-mono animate-pulse">
-                      • Listening and dictating random name simulation...
-                    </div>
-                  )}
+                  <input
+                    type="text"
+                    placeholder="Enter full name of pregnant mother"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="w-full text-base font-semibold px-4 py-3 border-2 border-slate-200 outline-none rounded-2xl focus:border-teal-500 transition-all font-sans"
+                  />
                 </div>
               </div>
             )}

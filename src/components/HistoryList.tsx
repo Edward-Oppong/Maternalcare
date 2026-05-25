@@ -5,14 +5,23 @@
 
 import React, { useState } from "react";
 import { AssessmentRecord, RiskLevel, SwellingLevel, ProteinuriaLevel } from "../types";
-import { Search, SlidersHorizontal, Calendar, ArrowRight, Eye, ShieldAlert, FileSpreadsheet, PhoneCall } from "lucide-react";
+import { Search, SlidersHorizontal, Calendar, ArrowRight, Eye, ShieldAlert, FileSpreadsheet, PhoneCall, Trash2, Database } from "lucide-react";
 
 interface HistoryListProps {
   records: AssessmentRecord[];
   onSelectRecord: (record: AssessmentRecord) => void;
+  onDeleteRecord?: (id: string) => void;
+  onClearAll?: () => void;
+  onResetToDefaults?: () => void;
 }
 
-export default function HistoryList({ records, onSelectRecord }: HistoryListProps) {
+export default function HistoryList({
+  records,
+  onSelectRecord,
+  onDeleteRecord,
+  onClearAll,
+  onResetToDefaults,
+}: HistoryListProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRisk, setFilterRisk] = useState<RiskLevel | "ALL">("ALL");
 
@@ -121,6 +130,43 @@ export default function HistoryList({ records, onSelectRecord }: HistoryListProp
         </div>
       </div>
 
+      {/* Database control actions for real clinical management */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs text-slate-500 font-medium bg-slate-100 hover:bg-slate-205 transition p-3 px-4 rounded-xl border border-slate-200">
+        <span className="flex items-center gap-1.5 font-semibold">
+          <Database className="w-3.5 h-3.5 text-slate-450" />
+          Active Station Caseload: <strong>{records.length}</strong> patient files found
+        </span>
+        <div className="flex gap-2.5">
+          {onResetToDefaults && (
+            <button
+               onClick={(e) => {
+                 e.stopPropagation();
+                 if (confirm("Reset clinical history logbook to GHS standardized training files?")) {
+                   onResetToDefaults();
+                 }
+               }}
+               className="text-teal-700 hover:text-teal-905 font-bold transition cursor-pointer hover:underline"
+            >
+               Reset Reference Data
+            </button>
+          )}
+          <span>•</span>
+          {onClearAll && (
+            <button
+               onClick={(e) => {
+                 e.stopPropagation();
+                 if (confirm("Are you sure you want to completely PURGE all Patient Assessment logs? This action is irreversible.")) {
+                   onClearAll();
+                 }
+               }}
+               className="text-red-655 hover:text-red-700 font-bold transition cursor-pointer hover:underline"
+            >
+               Purge Database
+            </button>
+          )}
+        </div>
+      </div>
+
       {filteredRecords.length === 0 ? (
         <div className="bg-slate-50 border rounded-2xl p-12 text-center text-slate-500 max-w-lg mx-auto">
           <FileSpreadsheet className="w-12 h-12 text-slate-300 mx-auto mb-3" />
@@ -150,9 +196,25 @@ export default function HistoryList({ records, onSelectRecord }: HistoryListProp
                     <span className="text-[11px] font-mono font-semibold text-slate-400">
                       {rec.id}
                     </span>
-                    <span className={`text-[11px] font-bold py-1 px-2.5 rounded-full uppercase ${styles.badge}`}>
-                      {rec.riskLevel} Risk (Score {rec.riskScore}/10)
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`text-[11px] font-bold py-1 px-2.5 rounded-full uppercase ${styles.badge}`}>
+                        {rec.riskLevel} Risk (Score {rec.riskScore}/10)
+                      </span>
+                      {onDeleteRecord && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (confirm(`Remove clinical file for ${rec.registration.fullName}?`)) {
+                              onDeleteRecord(rec.id);
+                            }
+                          }}
+                          className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200/40 text-red-650 transition cursor-pointer hover:scale-105 active:scale-95"
+                          title="Delete File"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   <h3 className="font-bold text-slate-900 text-lg group-hover:text-teal-600 transition-colors">

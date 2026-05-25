@@ -58,6 +58,7 @@ export interface AssessmentRecord {
   referralId?: string;
   referralStatus: "PENDING" | "REFERRED" | "STABILIZED";
   facilityName?: string;
+  clinician?: Clinician;
 }
 
 export interface Facility {
@@ -67,4 +68,13 @@ export interface Facility {
   phone: string;
   distanceKm: number;
   isTertiary: boolean;
+}
+
+export interface Clinician {
+  id: string;
+  name: string;
+  role: string;
+  ghsNumber: string;
+  pinCode: string;
+  avatarUrl?: string;
 }

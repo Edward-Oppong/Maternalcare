@@ -4,6 +4,81 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Eye-safe surgical white */
+  --color-white: #ffffff;
+
+  /* Redefine Slate as professional cool-clinical steel and slate neutrals */
+  --color-slate-50: #f4f6f8;   /* Pristine clean cool-gray background wash */
+  --color-slate-100: #e9ecf0;  /* Soft porcelain tone */
+  --color-slate-150: #dee3e8;  /* Latte wash to clean slate-zinc transition */
+  --color-slate-205: #cfd5dc;  /* Super soft line separators */
+  --color-slate-200: #d5dbe2;  /* Medium slate divider / soft border */
+  --color-slate-300: #b9c3ce;  /* Soft steel secondary border */
+  --color-slate-350: #9eb0c1;  /* Clinical zinc boundary */
+  --color-slate-400: #8699ad;  /* Silent caption gray text */
+  --color-slate-405: #71859c;  /* Soft steel label */
+  --color-slate-455: #5c6f85;  /* Deep clean slate body text */
+  --color-slate-500: #495b6e;  /* Clean clinical copy readables */
+  --color-slate-550: #3a4b5d;  /* Dark denim text highlights */
+  --color-slate-650: #2a3746;  /* High-contrast charcoal steel text */
+  --color-slate-700: #212c3a;  /* Deep slate charcoal */
+  --color-slate-800: #17212c;  /* Rich premium deep charcoal background */
+  --color-slate-850: #101720;  /* Solid clinical dark card headers */
+  --color-slate-900: #0a0f15;  /* Midnight steel for prominent headings */
+  --color-slate-950: #05080b;  /* Absolute rich dark */
+
+  /* Default border styling globally configured to prevent harsh black/gray outlines */
+  --color-border: #d5dbe2;
+
+  /* Redefine Teal as medical cool organic mint/sage */
+  --color-teal-50: #eff8f6;    /* Soft medical mint/ice wash */
+  --color-teal-100: #d6ede8;   /* Breathable pastel sage border wash */
+  --color-teal-205: #a8dad0;   /* Medical cool jade accent */
+  --color-teal-200: #a8dad0;   /* Direct compatibility */
+  --color-teal-500: #1f7a68;   /* Vibrant clinical teal primary brand */
+  --color-teal-550: #166152;   /* Direct action button background */
+  --color-teal-600: #0e4c40;   /* Safe clinical forest brand */
+  --color-teal-655: #08372e;   /* Strong authority clinical header * /
+  --color-teal-601: #08372e;
+  --color-teal-605: #08372e;
+  --color-teal-700: #052620;   /* Deep clinical green */
+  --color-teal-800: #031714;   /* Darkest rich teal */
+  --color-teal-900: #010a08;   /* Forest shadow */
+  --color-teal-950: #010a08;
+
+  /* Redefine Emerald as pristine wellness green */
+  --color-emerald-50: #f1fbf5;
+  --color-emerald-100: #dbf3e5;
+  --color-emerald-500: #259c5d;
+  --color-emerald-600: #197c45;
+  --color-emerald-700: #115c32;
+  --color-emerald-800: #0a3d20;
+  --color-emerald-900: #052412;
+  --color-emerald-950: #020f07;
+
+  /* Redefine Amber as warn high-alert ochre */
+  --color-amber-50: #fffcf5;
+  --color-amber-100: #fef1d6;
+  --color-amber-200: #fcd890;
+  --color-amber-500: #cf8119;   /* Smooth yellow alarm glow */
+  --color-amber-600: #a8620c;
+  --color-amber-700: #7e4404;
+  --color-amber-850: #552d01;
+  --color-amber-800: #552d01;
+  --color-amber-900: #291500;
+  --color-amber-955: #170b00;
+
+  /* Redefine Red as deep warning terracotta and signal red */
+  --color-red-50: #fef5f4;     /* Emergency soft warning rose wash */
+  --color-red-100: #fce7e4;    /* Alert rose */
+  --color-red-200: #f7bab1;
+  --color-red-500: #dc4b39;    /* Clean protective red warnings */
+  --color-red-605: #b93221;    /* Emergency dispatcher highlights */
+  --color-red-600: #b42b1b;    /* Severe clinical hazard */
+  --color-red-700: #88190c;
+  --color-red-800: #5f1107;
+  --color-red-955: #210200;    
 }
 
 @keyframes fadeIn {
@@ -21,3 +96,42 @@
   animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Eye-care global layout comfort overrides */
+body {
+  background-color: #f4f6f8 !important;
+  color: #212c3a !important;
+}
+
+/* Make sure browser fields do not output harsh dark gray outline squares */
+input, select, textarea {
+  border-color: #d5dbe2 !important;
+  background-color: #ffffff !important;
+  color: #212c3a !important;
+}
+
+/* Zero out default high-contrast browser overrides */
+* {
+  outline-color: rgba(31, 122, 104, 0.15) !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(31, 122, 104, 0.12) !important;
+  border-color: #166152 !important;
+}
+
+/* Soft cozy scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f4f6f8;
+}
+::-webkit-scrollbar-thumb {
+  background: #cfd5dc;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #b9c3ce;
+}

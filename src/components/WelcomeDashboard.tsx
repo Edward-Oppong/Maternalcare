@@ -5,7 +5,7 @@
 
 import React from "react";
 import { Sparkles, Play, ShieldCheck, Heart, Clock, ArrowUpRight, BookOpen, ChevronRight, Phone, Bell, History } from "lucide-react";
-import { AssessmentRecord, RiskLevel } from "../types";
+import { AssessmentRecord, RiskLevel, Clinician } from "../types";
 
 interface WelcomeDashboardProps {
   onStartAssessment: () => void;
@@ -13,6 +13,8 @@ interface WelcomeDashboardProps {
   onGoToEdu: () => void;
   records: AssessmentRecord[];
   onSelectRecord: (rec: AssessmentRecord) => void;
+  activeClinician: Clinician;
+  onOpenAuth: () => void;
 }
 
 export default function WelcomeDashboard({
@@ -21,6 +23,8 @@ export default function WelcomeDashboard({
   onGoToEdu,
   records,
   onSelectRecord,
+  activeClinician,
+  onOpenAuth,
 }: WelcomeDashboardProps) {
 
   const totalScreened = records.length;
@@ -186,36 +190,52 @@ export default function WelcomeDashboard({
           <div className="bg-slate-50 rounded-3xl p-6 border border-slate-200 flex flex-col items-center text-center space-y-4 Card">
             <div className="w-20 h-20 bg-white rounded-full border shadow-sm flex items-center justify-center relative select-none">
               <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBOMNxE0yeaUP_4gdv5Dg_A2ZIrry9OLsny6QrTT_SelW7ZtOdPqDPvgT_047rvkRbwlpe_QhO3vhxpmqqQ8bQvhxV-5Jyj3-p6UJ6I7cQQjyegXvOMvYTtfPmrNj0LZYaUigibUL5J7PCjvPabgvg2ZmVgdaNQRQxPTNipBJGlI32dMSowcwV0IwMjvW4zC0TppiVb_vie_HbRmHMs4BFwBN-VRiCTKEql9K2qnigRjnQHQAUk0aJof7uG4cSjW33-PNjWu7ctA"
-                alt="Nurse Akosua Companion Avatar"
-                className="w-16 h-16 object-contain rounded-full"
+                src={activeClinician.avatarUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuCBOMNxE0yeaUP_4gdv5Dg_A2ZIrry9OLsny6QrTT_SelW7ZtOdPqDPvgT_047rvkRbwlpe_QhO3vhxpmqqQ8bQvhxV-5Jyj3-p6UJ6I7cQQjyegXvOMvYTtfPmrNj0LZYaUigibUL5J7PCjvPabgvg2ZmVgdaNQRQxPTNipBJGlI32dMSowcwV0IwMjvW4zC0TppiVb_vie_HbRmHMs4BFwBN-VRiCTKEql9K2qnigRjnQHQAUk0aJof7uG4cSjW33-PNjWu7ctA"}
+                alt={`${activeClinician.name} Companion Avatar`}
+                className="w-16 h-16 object-contain rounded-full border border-slate-100"
                 referrerPolicy="no-referrer"
               />
-              <span className="w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full absolute bottom-1 right-1" />
+              <span className="w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full absolute bottom-1 right-1 animate-pulse" />
             </div>
 
             <div className="space-y-1">
               <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">
-                Your Digital Companion R.N.
+                Active Staff Duty Shift
               </span>
-              <h3 className="text-lg font-black text-slate-900">Nurse Akosua</h3>
-              <p className="text-xs text-teal-800 font-semibold font-mono">Greater Accra Maternity District</p>
+              <h3 className="text-lg font-black text-slate-900">{activeClinician.name}</h3>
+              <p className="text-xs text-teal-850 font-bold font-mono">{activeClinician.role}</p>
+              <p className="text-[10px] text-slate-400 font-mono">GHS ID: {activeClinician.ghsNumber}</p>
             </div>
 
-            <div className="w-full bg-white border rounded-2xl p-4 text-xs text-slate-600 space-y-3 leading-normal text-left shadow-sm">
-              <div className="flex gap-2 items-start font-medium leading-relaxed">
-                <span>"Ready to assist, Nurse Akosua! We have **4 patients** scheduled for pre-eclampsia followups today at the Okyere District clinic. Always test BP rest values beforehand."</span>
+            <div className="w-full bg-white border rounded-2xl p-4 text-xs text-slate-600 space-y-3 leading-normal text-left shadow-sm font-sans font-medium">
+              <div className="flex gap-2 items-start leading-relaxed text-slate-700">
+                <span>
+                  {activeClinician.id.includes("akosua") ? (
+                    `"Hello there, Nurse Akosua here! Ready to assist. We have ${totalScreened} total mother files saved. Please verify their diastolic thresholds with rest standards before triage calculation."`
+                  ) : activeClinician.role.toLowerCase().includes("officer") ? (
+                    `"On-duty Medical Officer shift active. All referral notes and triages will automatically carry my verification license GHS stamp: ${activeClinician.ghsNumber}."`
+                  ) : (
+                    `"Welcome! Continuous assessment logbook is synchronized under license: ${activeClinician.ghsNumber}. Keep testing protein levels at every checkup."`
+                  )}
+                </span>
               </div>
             </div>
+
+            <button
+              onClick={onOpenAuth}
+              className="w-full py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold transition hover:bg-slate-800 cursor-pointer active:scale-95"
+            >
+              Verify License PIN / Switch Shift
+            </button>
 
             <div className="w-full pt-1.5 grid grid-cols-2 gap-2 text-xs">
               <div className="p-2 bg-white border rounded-xl shadow-sm text-center">
-                <span className="text-slate-405 block font-semibold uppercase text-[9px] tracking-wide">Next Checkup</span>
-                <strong className="text-slate-800 text-xs block py-0.5">14:00 GMT</strong>
+                <span className="text-slate-405 block font-semibold uppercase text-[9px] tracking-wide">Duty Station</span>
+                <strong className="text-slate-800 text-[11px] block py-0.5 font-mono">Clinic Hub 4</strong>
               </div>
               <div className="p-2 bg-white border rounded-xl shadow-sm text-center">
-                <span className="text-slate-405 block font-semibold uppercase text-[9px] tracking-wide">Pending Files</span>
-                <strong className="text-slate-800 text-xs block py-0.5">2 referred today</strong>
+                <span className="text-slate-405 block font-semibold uppercase text-[9px] tracking-wide">Station Files</span>
+                <strong className="text-slate-800 text-[11px] block py-0.5 font-mono">{totalScreened} Files Total</strong>
               </div>
             </div>
           </div>

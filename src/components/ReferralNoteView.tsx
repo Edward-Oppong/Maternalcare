@@ -287,16 +287,17 @@ export default function ReferralNoteView({ record, onBack, onSaveAndClose }: Ref
           <div className="flex items-center gap-3.5">
             <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center shrink-0 border overflow-hidden">
               <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWdRXWG-EupW7HCgQTp1tdJXgZlza3cZzKvHO4GtfJdEYxRadCD5eS3WUeyM_MhBhQe2H_CVcFpB0idbdIFwqMw5MJbxU54fn2264U-Wfr7sS12PKr8jagAQ4Q1Xpp1H3bdN5ORcp0f05Czn6bpS4Rs4woelh1tj4-bJB_mAgDipkHZJ8HBbxNnJ-na9L_pDSwCXvIVLivub-2YSkl5NlS01tKmvEHZkGRCpSeRDS4wHxNI8nQvKWw6Ed_MsomnAE9Xe9p6NJyy-A"
+                src={record.clinician?.avatarUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuCBOMNxE0yeaUP_4gdv5Dg_A2ZIrry9OLsny6QrTT_SelW7ZtOdPqDPvgT_047rvkRbwlpe_QhO3vhxpmqqQ8bQvhxV-5Jyj3-p6UJ6I7cQQjyegXvOMvYTtfPmrNj0LZYaUigibUL5J7PCjvPabgvg2ZmVgdaNQRQxPTNipBJGlI32dMSowcwV0IwMjvW4zC0TppiVb_vie_HbRmHMs4BFwBN-VRiCTKEql9K2qnigRjnQHQAUk0aJof7uG4cSjW33-PNjWu7ctA"}
                 alt="Admitting Doctor Avatar"
                 className="w-10 h-10 object-contain rounded-full"
                 referrerPolicy="no-referrer"
               />
             </div>
             <div>
-              <span className="text-[10px] text-slate-400 font-semibold uppercase block">Referring Midwife</span>
-              <strong className="text-slate-800 text-sm">Practitioner Akosua (R.M.)</strong>
-              <span className="text-xs text-slate-500 block">Registration: GMR-98442-2026</span>
+              <span className="text-[10px] text-slate-400 font-semibold uppercase block">Referring Practitioner</span>
+              <strong className="text-slate-800 text-sm uppercase">{record.clinician?.name || "Nurse Akosua (R.M.)"}</strong>
+              <span className="text-xs text-slate-500 block">{record.clinician?.role || "Registered Midwife"}</span>
+              <span className="text-xs text-slate-450 block font-mono">GHS ID: {record.clinician?.ghsNumber || "GMR-98442-2026"}</span>
             </div>
           </div>
 

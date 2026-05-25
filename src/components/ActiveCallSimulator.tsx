@@ -102,16 +102,24 @@ export default function ActiveCallSimulator({
             )}
           </div>
 
-          <div className="flex gap-4 w-full">
+          <div className="flex flex-col gap-3.5 w-full">
+            <a
+              href={`tel:${facility.phone}`}
+              className="py-3.5 px-6 rounded-full bg-teal-600 hover:bg-teal-705 active:scale-95 transition-all text-teal-950 font-black text-sm flex items-center justify-center gap-2 w-full shadow-lg shadow-teal-500/15"
+            >
+              <Phone className="w-4 h-4 stroke-[3]" />
+              Dial Natively ({facility.phone})
+            </a>
+            
             <button
               onClick={() => {
                 setCallStatus("ended");
                 setTimeout(onClose, 800);
               }}
-              className="py-3.5 px-6 rounded-full bg-red-600 hover:bg-red-700 active:scale-95 transition-all text-white font-semibold flex items-center justify-center gap-2 w-full shadow-lg shadow-red-950/40"
+              className="py-3.5 px-6 rounded-full bg-slate-900 hover:bg-slate-800 active:scale-95 transition-all text-slate-300 font-bold text-sm flex items-center justify-center gap-2 w-full border border-slate-800"
             >
-              <PhoneOff className="w-5 h-5" />
-              {callStatus === "connected" ? "End Handover" : "Cancel Call"}
+              <PhoneOff className="w-4 h-4" />
+              {callStatus === "connected" ? "End Handover Simulator" : "Cancel Simulator"}
             </button>
           </div>
         </div>
