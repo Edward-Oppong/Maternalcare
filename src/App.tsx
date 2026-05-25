@@ -95,9 +95,7 @@ export default function App() {
   });
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isTerminalLocked, setIsTerminalLocked] = useState<boolean>(() => {
-    return localStorage.getItem("mat_care_terminal_locked") === "true";
-  });
+  const [isTerminalLocked, setIsTerminalLocked] = useState<boolean>(false);
 
   useEffect(() => {
     localStorage.setItem("mat_care_clinicians", JSON.stringify(clinicians));
@@ -108,14 +106,12 @@ export default function App() {
   }, [activeClinician]);
 
   const handleLogout = () => {
-    setIsTerminalLocked(true);
-    localStorage.setItem("mat_care_terminal_locked", "true");
+    setIsAuthModalOpen(true);
   };
 
   const handleUnlock = (clin: Clinician) => {
     setActiveClinician(clin);
     setIsTerminalLocked(false);
-    localStorage.setItem("mat_care_terminal_locked", "false");
   };
 
   // Overall screen mode
@@ -349,11 +345,11 @@ export default function App() {
             </button>
             <button
               onClick={handleLogout}
-              title="Secure Lock Terminal / Sign Out"
+              title="Switch Active Midwife / Doctor"
               className="py-1.5 px-2.5 sm:px-3 bg-slate-900 hover:bg-slate-800 active:scale-95 transition-all text-white border border-slate-900 text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer"
             >
-              <LogOut className="w-3.5 h-3.5 text-red-400 stroke-[2.5]" />
-              <span className="hidden sm:inline">Lock Shift</span>
+              <UserRoundCheck className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+              <span>Switch Shift</span>
             </button>
           </div>
         </div>
@@ -720,6 +716,10 @@ export default function App() {
         <TerminalLockScreen
           clinicians={clinicians}
           onUnlock={handleUnlock}
+          onRegisterClinician={(newClin) => {
+            setClinicians((prev) => [newClin, ...prev]);
+            setActiveClinician(newClin);
+          }}
         />
       )}
     </div>

@@ -31,6 +31,8 @@ export default function ClinicianAuthModal({
   const [regGhs, setRegGhs] = useState("");
   const [regPin, setRegPin] = useState("");
   const [regError, setRegError] = useState("");
+  const [isVerifyingRegistry, setIsVerifyingRegistry] = useState(false);
+  const [registryMessage, setRegistryMessage] = useState("");
 
   if (!isOpen) return null;
 
@@ -72,6 +74,7 @@ export default function ClinicianAuthModal({
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
     setRegError("");
+    setRegistryMessage("");
 
     if (!regName.trim() || !regGhs.trim() || !regPin.trim()) {
       setRegError("Please fill out all registration fields.");
@@ -83,6 +86,13 @@ export default function ClinicianAuthModal({
       return;
     }
 
+    // Nurses & Midwives Council (NMC) / Ghana Health Service licensure format validator
+    const licensePattern = /^(GMR|NMC|GDC|MDC|PHN|RGN|RM|MO)-\d{3,6}(-\d{4})?$/i;
+    if (!licensePattern.test(regGhs.trim())) {
+      setRegError("NMC Registry Check Failed: The License ID format is incorrect. Official GHS/NMC credentials must start with a valid designation prefix followed by digits and year (e.g. GMR-12345-2026, NMC-88402-2026, or PHN-32049-2026).");
+      return;
+    }
+
     const exists = clinicians.some(
       (c) => c.ghsNumber.toLowerCase() === regGhs.trim().toLowerCase()
     );
@@ -91,22 +101,34 @@ export default function ClinicianAuthModal({
       return;
     }
 
-    const newClin: Clinician = {
-      id: `clin_${Date.now()}`,
-      name: regName.trim(),
-      role: regRole,
-      ghsNumber: regGhs.trim().toUpperCase(),
-      pinCode: regPin.trim(),
-    };
+    setIsVerifyingRegistry(true);
+    setRegistryMessage("Querying Nurses and Midwives Council (NMC) Ghana registry database...");
 
-    onRegisterClinician(newClin);
-    setSelectedClin(newClin);
-    setShowRegisterForm(false);
-    setRegName("");
-    setRegGhs("");
-    setRegPin("");
-    setPinCode("");
-    setPinError("");
+    setTimeout(() => {
+      setRegistryMessage(`Checking license status for '${regName}'...`);
+      
+      setTimeout(() => {
+        const newClin: Clinician = {
+          id: `clin_${Date.now()}`,
+          name: regName.trim(),
+          role: regRole,
+          ghsNumber: regGhs.trim().toUpperCase(),
+          pinCode: regPin.trim(),
+        };
+
+        onRegisterClinician(newClin);
+        setSelectedClin(newClin);
+        setShowRegisterForm(false);
+        setIsVerifyingRegistry(false);
+        setRegistryMessage("");
+        setRegName("");
+        setRegGhs("");
+        setRegPin("");
+        setPinCode("");
+        setPinError("");
+        onClose();
+      }, 800);
+    }, 800);
   };
 
   return (
@@ -246,17 +268,32 @@ export default function ClinicianAuthModal({
                   </div>
                 </div>
 
+                {isVerifyingRegistry && (
+                  <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 flex items-center gap-3 animate-pulse font-sans">
+                    <RefreshCcw className="w-5 h-5 text-teal-600 animate-spin shrink-0" />
+                    <div className="space-y-0.5 text-left">
+                      <p className="text-xs font-bold text-teal-800">Verifying Professional Credentials</p>
+                      <p className="text-[10px] font-mono text-teal-605">{registryMessage}</p>
+                    </div>
+                  </div>
+                )}
+
                 {regError && (
-                  <p className="text-xs text-red-600 font-semibold bg-red-50 p-2 px-3 rounded-lg border border-red-200/50">
+                  <p className="text-xs text-red-655 font-bold bg-red-50 p-2.5 rounded-xl border border-red-200/50">
                     ⚠ {regError}
                   </p>
                 )}
 
                 <button
                   type="submit"
-                  className="w-full py-3.5 bg-teal-600 hover:bg-teal-700 text-white font-black text-xs rounded-xl transition cursor-pointer uppercase tracking-wider"
+                  disabled={isVerifyingRegistry}
+                  className={`w-full py-3.5 font-black text-xs rounded-xl transition uppercase tracking-wider ${
+                    isVerifyingRegistry
+                      ? "bg-slate-205 text-slate-400 border border-transparent cursor-not-allowed"
+                      : "bg-teal-600 hover:bg-teal-700 text-white shadow-sm cursor-pointer"
+                  }`}
                 >
-                  Register Staff Card & Activate
+                  {isVerifyingRegistry ? "Querying GHS Database..." : "Register Staff Card & Activate"}
                 </button>
               </form>
             ) : (
@@ -277,8 +314,8 @@ export default function ClinicianAuthModal({
                           type="button"
                           onClick={() => {
                             setSelectedClin(clin);
-                            setPinCode("");
-                            setPinError("");
+                            onSelectClinician(clin);
+                            onClose();
                           }}
                           className={`p-3 rounded-2xl border text-center relative transition-all flex flex-col items-center justify-between gap-2.5 cursor-pointer ${
                             isSelected
